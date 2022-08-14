@@ -1,8 +1,8 @@
 import pandas as pd
-from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
+from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error, accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeRegressor
-import seaborn as sns
+# import seaborn as sns
 
 
 def print_model_performance(model, y, prediction):
@@ -11,7 +11,8 @@ def print_model_performance(model, y, prediction):
     print (f'Mead squared Error (MSE): {mean_squared_error(y, prediction):.2f}')
     print (f'Mead absolute Error (MAE): {mean_absolute_error(y, prediction):.2f}')
     print (f'Coeffecint of determination (R2): {r2_score(y, prediction):.2f}')
-    sns.scatterplot(x=y, y=prediction)
+    print (f'Accuracy: {accuracy_score(y_true=y, y_pred=prediction)}')
+    # sns.scatterplot(x=y, y=prediction)
 
 
 def reg_decision_tree_1(train_X, val_X, train_y, val_y):
