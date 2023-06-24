@@ -27,7 +27,7 @@ def reg_decision_tree_1(train_X, val_X, train_y, val_y):
     val_predictions = iowa_model.predict(val_X)
     val_mae = mean_absolute_error(val_predictions, val_y)
     # print("Validation MAE: {:,.0f}".format(val_mae))
-    print_model_performance(iowa_model, val_y, val_predictions)
+    print_model_performance(iowa_model, val_y, val_predictions, 3)
 
 def use_linear_model(train_X, eval_X, train_y, eval_y):
     model = linear_model.LinearRegression()
@@ -57,9 +57,9 @@ def reg_decision_tree_max_leaf(train_X, val_X, train_y, val_y):
     mae=[]
     for i, max_leaf in enumerate(candidate_max_leaf_nodes):
         #print (i, max_leaf)
-        x = get_mae(max_leaf, train_X, val_X, train_y, val_y)
-        mae.append(x)
-        print(f"Max leaf nodes: {max_leaf}  \t\t Mean Absolute Error:  {x}")
+        X = get_mae(max_leaf, train_X, val_X, train_y, val_y)
+        mae.append(X)
+        print(f"Max leaf nodes: {max_leaf}  \t\t Mean Absolute Error:  {X}")
         
     # Store the best value of max_leaf_nodes (it will be either 5, 25, 50, 100, 250 or 500)
     m = mae.index(min(mae))
@@ -88,7 +88,7 @@ def regression_home_data():
     reg_decision_tree_1(train_X, val_X, train_y, val_y)
 
     print ('\n************ Decision Tree multi level optimized ***************')
-    reg_decision_tree_max_leaf(train_X, val_X, train_y, val_y)
+    # reg_decision_tree_max_leaf(train_X, val_X, train_y, val_y)
 
     print ('\n************ User Forest model regression ***************')
     use_forest_regression(train_X, val_X, train_y, val_y)
