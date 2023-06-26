@@ -13,6 +13,8 @@ from types import NoneType
 import pickle
 
 DATA_FOLDER = "./data/"
+
+DATA_FOLDER = "./data/"
 cfcn_method= ['Random Forest Calssification', 
                   'SVC Calssification', 
                   'Nueral Network Calssification']
@@ -86,17 +88,17 @@ def use_nueral_networks(X_train, X_test, y_train, y_test):
 
 # def plot_all():
 #     all_reg = pd.DataFrame()
-#     for reg_model_id, reg_fn in enumerate(cfcn_functions):
-#         print (20*'*', cfcn_method[reg_model_id],20*'*' )
-#         pred = reg_fn(train_X, test_X, train_y, test_y)
+#     for reg_model_id, reg_fn in enumerate(reg_functions):
+#         print (20*'*', reg_method[reg_model_id],20*'*' )
+#         pred = reg_fn(train_X, val_X, train_y, val_y)
 #         if type(pred) == NoneType: 
 #             print ('Model is not suitable for data')
 #             continue   # model is not suitable
 #         x = pd.DataFrame(val_y)
 #         x['predicted'] = pred
-#         x['Method'] = cfcn_method[reg_model_id]
+#         x['Method'] = reg_method[reg_model_id]
 #         all_reg = pd.concat([all_reg, x])
-#         # print_model_performance(None, val_y, pred, reg_model_id)
+#         print_model_performance(None, val_y, pred, reg_model_id)
 
 #     all_reg.to_csv(r'.\\out\\all_reg.csv')
 #     g = sns.FacetGrid(data=all_reg, col= 'Method', col_wrap=2)
