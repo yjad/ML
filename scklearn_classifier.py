@@ -6,30 +6,26 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split 
 from types import NoneType
 import pickle
 
 DATA_FOLDER = "./data/"
-
-DATA_FOLDER = "./data/"
 cfcn_method= ['Random Forest Calssification', 
                   'SVC Calssification', 
                   'Nueral Network Calssification']
 
-cfcn_functions = [use_random_forest, 
-                    use_SVC,
-                    use_nueral_networks] 
 
-def print_model_performance(model, y, prediction, reg_method_id):
-    # print ('coeffecient:', model.coef_)
-    # print ('intercept: ', model.intercept_)
+# def print_model_performance(model, y, prediction, reg_method_id):
+    # perf = {}
+    # perf.update({'coeffecient:': model.coef_})
+    # # print ('intercept: ', model.intercept_)
 
-    print (f'Mean squared Error (MSE): {mean_squared_error(y, prediction):.2f}')
-    print (f'Mean absolute Error (MAE): {mean_absolute_error(y, prediction):.2f}')
-    print (f'Coeffecint of determination (R2): {r2_score(y, prediction):.2f}')
+    # perf.update({'Mean squared Error (MSE)': mean_squared_error(y, prediction)})
+    # print (f'Mean absolute Error (MAE): {mean_absolute_error(y, prediction):.2f}')
+    # print (f'Coeffecint of determination (R2): {r2_score(y, prediction):.2f}')
     # plt.figure()
     # p= sns.regplot(x=y, y=prediction, marker = '+')
     # p= p.set_title(reg_method[reg_method_id])
@@ -133,16 +129,20 @@ def load_clsfn_data_set(dataset):
 
 
 
-def genetate_models(ds, model_id=None):
+def genetate_models(X_train, X_test, y_train, y_test, model_id=None):
+    
+    cfcn_functions = [use_random_forest, 
+                    use_SVC,
+                    use_nueral_networks] 
 
-    X_train, X_test, y_train, y_test = load_data_set(ds)
+    # X_train, X_test, y_train, y_test = load_data_set(ds)
     for reg_model_id, reg_fn in enumerate(cfcn_functions):
         # print (model_id,  reg_model_id, model_id and reg_model_id != model_id)
         if model_id is not None and (reg_model_id != model_id):
             continue
 
         cls_model = reg_fn(X_train, X_test, y_train, y_test)
-        with open(f'{path.join(DATA_FOLDER, cfcn_method[reg_model_id])}.pkl', 'wb') as fid:
+        with open(f'{os.path.join(DATA_FOLDER, cfcn_method[reg_model_id])}.pkl', 'wb') as fid:
             pickle.dump(cls_model, fid) 
 
 
@@ -157,25 +157,27 @@ def out_string(*args, **kwargs):
 
 def best_model(X_test, y_test):
 
-    out_str = ""
+    perf = {}
     scores = []
+
     for reg_model_id, reg_fn in enumerate(cfcn_method):
         # print (model_id,  reg_model_id, model_id and reg_model_id != model_id)
-         with open(f'{path.join(DATA_FOLDER, cfcn_method[reg_model_id])}.pkl', 'rb') as fid:
+         with open(f'{os.path.join(DATA_FOLDER, cfcn_method[reg_model_id])}.pkl', 'rb') as fid:
             cfn_model = pickle.load(fid) 
 
-            out_str += out_string(20*'*', cfcn_method[reg_model_id],20*'*')
+            # out_str += out_string(20*'*', cfcn_method[reg_model_id],20*'*')
             # cls_model = reg_fn(X_train, X_test, y_train, y_test)
             pred = cfn_model.predict(X_test)
-            out_str += classification_performance(y_test, pred)
-        # --- save model
-
+            perf.update({f"{cfcn_method[reg_model_id]}-Classification Report": classification_report(y_test, pred)})
+            perf.update({f"{cfcn_method[reg_model_id]}-Confusion Matrix     ": confusion_matrix(y_test, pred)})
+            perf.update({f"{cfcn_method[reg_model_id]}-Accuracy Score       ": accuracy_score(y_test, pred)})
             scores.append(accuracy_score(y_test, pred))
+
     best_accuracy = max(scores)
     best_model = cfcn_method[scores.index(best_accuracy)]
-    out_str += out_string(20*'*', " Summary " , 20*'*')
-    out_str += out_string(f"Best model: {best_model} with accuracy: {best_accuracy:.2f}") 
-    return out_str, best_model, best_accuracy
+    # out_str += out_string(20*'*', " Summary " , 20*'*')
+    # out_str += out_string(f"Best model: {best_model} with accuracy: {best_accuracy:.2f}") 
+    return perf, best_model, best_accuracy
 
 
 def use_model(cfn_model, X_test):
