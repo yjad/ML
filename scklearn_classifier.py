@@ -1,5 +1,6 @@
 import io
-import os
+# import os.path
+from os import path
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -13,9 +14,6 @@ from types import NoneType
 import pickle
 
 DATA_FOLDER = "./data/"
-cfcn_method= ['Random Forest Calssification', 
-                  'SVC Calssification', 
-                  'Nueral Network Calssification']
 
 
 # def print_model_performance(model, y, prediction, reg_method_id):
@@ -82,31 +80,47 @@ def use_nueral_networks(X_train, X_test, y_train, y_test):
     # classification_performance(y_test, pred)
     return mlpc
 
-# def plot_all():
-#     all_reg = pd.DataFrame()
-#     for reg_model_id, reg_fn in enumerate(reg_functions):
-#         print (20*'*', reg_method[reg_model_id],20*'*' )
-#         pred = reg_fn(train_X, val_X, train_y, val_y)
-#         if type(pred) == NoneType: 
-#             print ('Model is not suitable for data')
-#             continue   # model is not suitable
-#         x = pd.DataFrame(val_y)
-#         x['predicted'] = pred
-#         x['Method'] = reg_method[reg_model_id]
-#         all_reg = pd.concat([all_reg, x])
-#         print_model_performance(None, val_y, pred, reg_model_id)
+def load_model_from_file(reg_model_name):
+    with open(f'{path.join(DATA_FOLDER, reg_model_name)}.pkl', 'rb') as fid:
+            cfn_model = pickle.load(fid) 
+    return cfn_model
 
-#     all_reg.to_csv(r'.\\out\\all_reg.csv')
-#     g = sns.FacetGrid(data=all_reg, col= 'Method', col_wrap=2)
-#     g.map(sns.regplot, all_reg.columns[0], 'predicted',  marker = '+')
+def plot_all():
+    all_reg = pd.DataFrame()
+    _, X_test, _, _ = load_data_set_wine()
 
+    # for reg_model_id, reg_fn in enumerate(cfcn_method):
+    for reg_model_name in CFCN_MODELS.keys():
 
-def load_clsfn_data_set(dataset):
+        # print (20*'*', cfcn_method[reg_model_id],20*'*' )
+        cfcn_model = load_model_from_file(reg_model_name)
+        # pred = cfcn_model(X_train, X_test, y_train, y_test)
+        pred = use_model(cfcn_model, X_test)
+        if type(pred) == NoneType: 
+            print ('Model is not suitable for data')
+            continue   # model is not suitable
+        x = pd.DataFrame(pred)
+        x['predicted'] = pred
+        x['Method'] = reg_model_name
+        all_reg = pd.concat([all_reg, x])
+        # print_model_performance(None, val_y, pred, reg_model_id)
+
+    all_reg.to_csv(r'.\\out\\all_reg.csv')
+    g = sns.FacetGrid(data=all_reg, col= 'Method', col_wrap=2)
+    fig = g.map(sns.regplot, all_reg.columns[0], 'predicted',  marker = '+')
+    return fig
+
+def load_data_set_wine():
     #Loading dataset
-    # dataset = pd.read_csv(file_path)
+    dataset_path = r"C:\Yahia\Home\Yahia-Dev\Python\ML\data\wine-quality-white-and-red.csv"
+    # dataset_path = r"C:\Yahia\Python\ML\data\wine-quality-white-and-red.csv"
+    dataset = pd.read_csv(dataset_path)
+    wine  = pd.read_csv(dataset_path)
+    wine =wine.query("type == 'red'").drop(columns='type', axis=1)
+    
 
     # Pre processing
-    wine = dataset.copy()
+    # wine = dataset.copy()
     bins = (2, 6.5, 8)
     group_names = ['bad', 'good']
     wine.quality = pd.cut(wine.quality, bins=bins, labels = group_names)
@@ -129,22 +143,17 @@ def load_clsfn_data_set(dataset):
 
 
 
-def genetate_models(X_train, X_test, y_train, y_test, model_id=None):
+def save_models(X_train, X_test, y_train, y_test, model_name=None):
     
-    cfcn_functions = [use_random_forest, 
-                    use_SVC,
-                    use_nueral_networks] 
-
     # X_train, X_test, y_train, y_test = load_data_set(ds)
-    for reg_model_id, reg_fn in enumerate(cfcn_functions):
+    for reg_model_name, reg_model_fn in CFCN_MODELS.items():
         # print (model_id,  reg_model_id, model_id and reg_model_id != model_id)
-        if model_id is not None and (reg_model_id != model_id):
-            continue
+        # if model_id is not None and (reg_model_id != model_id):
+        #     continue
 
-        cls_model = reg_fn(X_train, X_test, y_train, y_test)
-        with open(f'{os.path.join(DATA_FOLDER, cfcn_method[reg_model_id])}.pkl', 'wb') as fid:
+        cls_model = reg_model_fn(X_train, X_test, y_train, y_test)
+        with open(f'{path.join(DATA_FOLDER, reg_model_name)}.pkl', 'wb') as fid:
             pickle.dump(cls_model, fid) 
-
 
 
 def out_string(*args, **kwargs):
@@ -160,21 +169,21 @@ def best_model(X_test, y_test):
     perf = {}
     scores = []
 
-    for reg_model_id, reg_fn in enumerate(cfcn_method):
+    for reg_model_name, _ in CFCN_MODELS.items():
         # print (model_id,  reg_model_id, model_id and reg_model_id != model_id)
-         with open(f'{os.path.join(DATA_FOLDER, cfcn_method[reg_model_id])}.pkl', 'rb') as fid:
+         with open(f'{path.join(DATA_FOLDER, reg_model_name)}.pkl', 'rb') as fid:
             cfn_model = pickle.load(fid) 
 
             # out_str += out_string(20*'*', cfcn_method[reg_model_id],20*'*')
             # cls_model = reg_fn(X_train, X_test, y_train, y_test)
             pred = cfn_model.predict(X_test)
-            perf.update({f"{cfcn_method[reg_model_id]}-Classification Report": classification_report(y_test, pred)})
-            perf.update({f"{cfcn_method[reg_model_id]}-Confusion Matrix     ": confusion_matrix(y_test, pred)})
-            perf.update({f"{cfcn_method[reg_model_id]}-Accuracy Score       ": accuracy_score(y_test, pred)})
+            perf.update({f"{reg_model_name}-Classification Report": classification_report(y_test, pred)})
+            perf.update({f"{reg_model_name}-Confusion Matrix     ": confusion_matrix(y_test, pred)})
+            perf.update({f"{reg_model_name}-Accuracy Score       ": accuracy_score(y_test, pred)})
             scores.append(accuracy_score(y_test, pred))
 
     best_accuracy = max(scores)
-    best_model = cfcn_method[scores.index(best_accuracy)]
+    best_model = CFCN_MODELS[scores.index(best_accuracy)]
     # out_str += out_string(20*'*', " Summary " , 20*'*')
     # out_str += out_string(f"Best model: {best_model} with accuracy: {best_accuracy:.2f}") 
     return perf, best_model, best_accuracy
@@ -188,6 +197,10 @@ def use_model(cfn_model, X_test):
     # X_test = sc.transform(X_test)
     pred = cfn_model.predict(X_test)
     return pred
+
+CFCN_MODELS= {'Random Forest Calssification': use_random_forest, 
+                  'SVC Calssification': use_SVC, 
+                  'Nueral Network Calssification': use_nueral_networks}
 
 if __name__ == '__main__':
     dataset_path = r"C:\Yahia\python\ML\data\WineQT.csv"

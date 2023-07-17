@@ -9,48 +9,42 @@ import seaborn as sns
 
 
 @st.cache_data
-def load_data_set():
-
-    # dataset_path = r"C:\Yahia\Home\Yahia-Dev\Python\ML\data\wine-quality-white-and-red.csv"
-    dataset_path = r"C:\Yahia\Python\ML\data\wine-quality-white-and-red.csv"
-    ds  = pd.read_csv(dataset_path)
-    st.write("Dataset path: ", dataset_path)
+def load_data_set_wine():
+    dataset_path = r"C:\Yahia\Home\Yahia-Dev\Python\ML\data\wine-quality-white-and-red.csv"
+    st.write(dataset_path)
+    
     # st.write(ds.columns)
-    # st.write(ds.type.value_counts())
-    ds =ds.query("type == 'red'").drop(columns='type', axis=1)
-    # st.dataframe(ds)
-    X_train, X_test, y_train, y_test = sc.load_clsfn_data_set(ds)
+    # return X_train, X_test, y_train, y_test,ds
+    return sc.load_data_set_wine()
 
-    # st.write(ds.columns)
-    return X_train, X_test, y_train, y_test,ds
-
-@st.cache_data
-def load_model_from_file(reg_model_name):
-    with open(f'{path.join(sc.DATA_FOLDER, reg_model_name)}.pkl', 'rb') as fid:
-            cfn_model = pickle.load(fid) 
-    return cfn_model
 
 def plot_all():
-    all_reg = pd.DataFrame()
-    X_train, X_test, y_train, y_test = load_data_set()
+    # all_reg = pd.DataFrame()
+    # _, X_test, _, _ = sc.load_data_set_wine()
 
-    for reg_model_id, reg_fn in enumerate(cfcn_method):
+    # # for reg_model_id, reg_fn in enumerate(cfcn_method):
+    # for reg_model_name in sc.CFCN_MODELS.keys():
 
-        # print (20*'*', cfcn_method[reg_model_id],20*'*' )
-        cfcn_model = load_model_from_file(cfcn_method)
-        pred = cfcn_model(X_train, X_test, y_train, y_test)
-        if type(pred) == NoneType: 
-            print ('Model is not suitable for data')
-            continue   # model is not suitable
-        x = pd.DataFrame(pred)
-        x['predicted'] = pred
-        x['Method'] = reg_fn
-        all_reg = pd.concat([all_reg, x])
-        # print_model_performance(None, val_y, pred, reg_model_id)
+    #     # print (20*'*', cfcn_method[reg_model_id],20*'*' )
+    #     cfcn_model = sc.load_model_from_file(reg_model_name)
+    #     # pred = cfcn_model(X_train, X_test, y_train, y_test)
+    #     pred = sc.use_model(cfcn_model, X_test)
+    #     if type(pred) == NoneType: 
+    #         print ('Model is not suitable for data')
+    #         continue   # model is not suitable
+    #     x = pd.DataFrame(pred)
+    #     x['predicted'] = pred
+    #     x['Method'] = reg_model_name
+    #     all_reg = pd.concat([all_reg, x])
+    #     # print_model_performance(None, val_y, pred, reg_model_id)
 
-    all_reg.to_csv(r'.\\out\\all_reg.csv')
-    g = sns.FacetGrid(data=all_reg, col= 'Method', col_wrap=2)
-    g.map(sns.regplot, all_reg.columns[0], 'predicted',  marker = '+')
+    # all_reg.to_csv(r'.\\out\\all_reg.csv')
+    # g = sns.FacetGrid(data=all_reg, col= 'Method', col_wrap=2)
+    # fig = g.map(sns.regplot, all_reg.columns[0], 'predicted',  marker = '+')
+    fig = sc.plot_all()
+    st.pyplot(fig)
+    # st.dataframe(X_test)
+    
 
 def load_dataset():
     st.write("Loadng the dataset ...")
@@ -66,10 +60,8 @@ def load_dataset():
 
 def use_model():
     st.header("Use Model ...")
-    cfcn_method= ['Random Forest Calssification', 
-                  'SVC Calssification', 
-                  'Nueral Network Calssification']
-    reg_model_name = st.selectbox("Select Model:", cfcn_method)
+    
+    reg_model_name = st.selectbox("Select Model:", sc.CFCN_MODELS.keys())
     X_train, X_test, y_train, y_test,ds = load_data_set()
 
     index = st.number_input("Select index from test set:",0,X_test.shape[0]-1)
@@ -97,7 +89,7 @@ def use_model():
          st.error ("Quality Mismatch ....")
 
 
-def build_models():
+def build_models(load_ds_fn):
     st.header("Build Model ...")
     # st.image("https://static.streamlit.io/examples/cat.jpg", width=200)
     # dataset_path = r"C:\Yahia\Home\Yahia-Dev\Python\ML\data\wine-quality-white-and-red.csv"
@@ -112,30 +104,46 @@ def build_models():
     select_opt = st.radio("Opions: ", ['Options', 'Generate Models', 'Best Model', 'Models Performace'], horizontal=True)
     match select_opt:
         case 'Generate Models':
-            X_train, X_test, y_train, y_test,_ = load_data_set()
-            out = sc.genetate_models(X_train, X_test, y_train, y_test, model_id=None)
+            X_train, X_test, y_train, y_test,_ = load_ds_fn()
+            out = sc.save_models(X_train, X_test, y_train, y_test, model_id=None)
             st.info('Done')
 
         case 'Best Model':
-            X_train, X_test, y_train, y_test,_ = load_data_set()
+            X_train, X_test, y_train, y_test,_ = load_ds_fn()
             perf, best_model, best_model_accuracy = sc.best_model(X_test, y_test)
             st.write(f"Best Model: {best_model} with accuracy: {best_model_accuracy}")
             st.write(perf)
             
 
-        case 'Models Performace':
-            st.write(out)
+        # case 'Models Performace':
+        #     st.write(out)
 
      
 
-st.header ("Classification")
-options = {"...": None, 
-           "Build Model": build_models, 
-           "Use Model": use_model}
+st.header ("Classification/Regression")
+datasets = {"...": None, 
+           "Wine dataset": load_data_set_wine, 
+           "Germany Cars": None, 
+           "Diabets": None, 
+            }
+ds_load_function = st.sidebar.selectbox("Datasets: ", datasets.keys())
+if datasets[ds_load_function]:
+    options = {"...": None, 
+            "Save Models": None, 
+            "Plot Models": plot_all, 
+            "Use Model": use_model}
 
-opt = st.sidebar.selectbox("Options", options.keys())
-if opt != '...':
-     options[opt]()
+    opt = st.sidebar.selectbox("Options", options.keys())
+    match opt:
+        case '...':
+            pass
+        case "Save Models": 
+            X_train, X_test, y_train, y_test = datasets[ds_load_function]()
+            sc.genetate_models(X_train, X_test, y_train, y_test, model_name=None)
+            st.info('Models generated and saved to files ...')
+        case others:
+            options[opt]()
+
 
 
 
