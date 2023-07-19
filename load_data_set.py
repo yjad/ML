@@ -33,7 +33,7 @@ def load_data_set_wine():
     X_train = sc.fit_transform(X_train)
     X_test = sc.transform(X_test)
 
-    return X_train, X_test, y_train, y_test
+    return X_train, X_test, y_train, y_test, wine
 
 def load_ds_boston_housing():
     dataset_path = r".\data\BostonHousing.zip"
@@ -42,6 +42,6 @@ def load_ds_boston_housing():
     X = boston_ds.drop('medv', axis='columns')
 
     # # Split into validation and training data
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size =0.2, random_state=1)
-    return train_test_split(X, y, test_size =0.2, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size =0.2, random_state=1)
+    return X_train, X_test, y_train, y_test, boston_ds
 

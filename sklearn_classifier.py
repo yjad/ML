@@ -112,22 +112,22 @@ def best_model(X_test, y_test):
             scores.append(accuracy_score(y_test, pred))
 
     best_accuracy = max(scores)
-    best_model = CFCN_MODELS[scores.index(best_accuracy)]
+    best_model = CLS_MODELS[scores.index(best_accuracy)]
     # out_str += out_string(20*'*', " Summary " , 20*'*')
     # out_str += out_string(f"Best model: {best_model} with accuracy: {best_accuracy:.2f}") 
     return perf, best_model, best_accuracy
 
 
-def use_model(cfn_model, X_test):
+# def use_model(cfn_model, X_test):
 
-    # with open(f'{os.path.join(DATA_FOLDER, model_name)}.pkl', 'rb') as fid:
-    #         cfn_model = pickle.load(fid) 
-    sc = StandardScaler()
-    # X_test = sc.transform(X_test)
-    pred = cfn_model.predict(X_test)
-    return pred
+#     # with open(f'{os.path.join(DATA_FOLDER, model_name)}.pkl', 'rb') as fid:
+#     #         cfn_model = pickle.load(fid) 
+#     sc = StandardScaler()
+#     # X_test = sc.transform(X_test)
+#     pred = cfn_model.predict(X_test)
+#     return pred
 
-CFCN_MODELS= {'Random Forest Calssification': use_random_forest, 
+CLS_MODELS= {'Random Forest Calssification': use_random_forest, 
                   'SVC Calssification': use_SVC, 
                   'Nueral Network Calssification': use_nueral_networks}
 

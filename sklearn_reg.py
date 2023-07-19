@@ -7,14 +7,14 @@ from sklearn import linear_model
 import seaborn as sns
 
 
-def print_model_performance(model, y, prediction, id):
-    # print ('coeffecient:', model.coef_)
-    # print ('intercept: ', model.intercept_)
-    print (f'Mean squared Error (MSE): {mean_squared_error(y, prediction):.2f}')
-    print (f'Mean absolute Error (MAE): {mean_absolute_error(y, prediction):.2f}')
-    print (f'Coeffecint of determination (R2): {r2_score(y, prediction):.2f}')
-    print (f'Accuracy: {accuracy_score(y_true=y, y_pred=prediction)}')
-    # sns.scatterplot(x=y, y=prediction)
+# def print_model_performance(model, y, prediction, id):
+#     # print ('coeffecient:', model.coef_)
+#     # print ('intercept: ', model.intercept_)
+#     print (f'Mean squared Error (MSE): {mean_squared_error(y, prediction):.2f}')
+#     print (f'Mean absolute Error (MAE): {mean_absolute_error(y, prediction):.2f}')
+#     print (f'Coeffecint of determination (R2): {r2_score(y, prediction):.2f}')
+#     print (f'Accuracy: {accuracy_score(y_true=y, y_pred=prediction)}')
+#     # sns.scatterplot(x=y, y=prediction)
 
 
 def reg_decision_tree_1(X_train, X_test, y_train, ty_test):
@@ -76,10 +76,10 @@ def reg_decision_tree_max_leaf(X_train, X_test, y_train, y_test):
     return final_model
 
 
-REG_MODELS= {'Reg-Decision Tree one level': reg_decision_tree_1, 
-             'Reg-Decision Tree multi level optimized': reg_decision_tree_max_leaf, 
-             'Reg-Random Forest': use_forest_regression, 
-             'Reg-Linear Model': use_linear_model
+REG_MODELS= {'Decision Tree one level': reg_decision_tree_1, 
+             'Decision Tree multi level optimized': reg_decision_tree_max_leaf, 
+             'Random Forest': use_forest_regression, 
+             'Linear Model': use_linear_model
 }
 
 

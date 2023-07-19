@@ -1,5 +1,5 @@
 import streamlit as st
 
-st.write ("Help")
+# st.write ("Help")
 
-st.help (st.tabs)
+st.help (st.dataframe)
