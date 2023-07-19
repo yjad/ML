@@ -118,14 +118,14 @@ def best_model(X_test, y_test):
     return perf, best_model, best_accuracy
 
 
-def use_model(cfn_model, X_test):
+# def use_model(cfn_model, X_test):
 
-    # with open(f'{os.path.join(DATA_FOLDER, model_name)}.pkl', 'rb') as fid:
-    #         cfn_model = pickle.load(fid) 
-    sc = StandardScaler()
-    # X_test = sc.transform(X_test)
-    pred = cfn_model.predict(X_test)
-    return pred
+#     # with open(f'{os.path.join(DATA_FOLDER, model_name)}.pkl', 'rb') as fid:
+#     #         cfn_model = pickle.load(fid) 
+#     sc = StandardScaler()
+#     # X_test = sc.transform(X_test)
+#     pred = cfn_model.predict(X_test)
+#     return pred
 
 CFCN_MODELS= {'Random Forest Calssification': use_random_forest, 
                   'SVC Calssification': use_SVC, 

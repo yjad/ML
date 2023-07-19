@@ -7,14 +7,14 @@ from sklearn import linear_model
 import seaborn as sns
 
 
-def print_model_performance(model, y, prediction, id):
-    # print ('coeffecient:', model.coef_)
-    # print ('intercept: ', model.intercept_)
-    print (f'Mean squared Error (MSE): {mean_squared_error(y, prediction):.2f}')
-    print (f'Mean absolute Error (MAE): {mean_absolute_error(y, prediction):.2f}')
-    print (f'Coeffecint of determination (R2): {r2_score(y, prediction):.2f}')
-    print (f'Accuracy: {accuracy_score(y_true=y, y_pred=prediction)}')
-    # sns.scatterplot(x=y, y=prediction)
+# def print_model_performance(model, y, prediction, id):
+#     # print ('coeffecient:', model.coef_)
+#     # print ('intercept: ', model.intercept_)
+#     print (f'Mean squared Error (MSE): {mean_squared_error(y, prediction):.2f}')
+#     print (f'Mean absolute Error (MAE): {mean_absolute_error(y, prediction):.2f}')
+#     print (f'Coeffecint of determination (R2): {r2_score(y, prediction):.2f}')
+#     print (f'Accuracy: {accuracy_score(y_true=y, y_pred=prediction)}')
+#     # sns.scatterplot(x=y, y=prediction)
 
 
 def reg_decision_tree_1(X_train, X_test, y_train, ty_test):
