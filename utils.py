@@ -91,3 +91,11 @@ def use_cls_model(cfn_model, X_test):
     # X_test = sc.transform(X_test)
     pred = cfn_model.predict(X_test)
     return pred
+
+def check_non_numeric(s:pd.Series):
+    # print (s.dtype)
+    if 'pyarrow' in str(s.dtype):
+        idx = pd.to_numeric(s, errors='coerce', dtype_backend='pyarrow').isna()
+    else:
+        idx = pd.to_numeric(s, errors='coerce').isna()
+    return idx  # return index of non numeric

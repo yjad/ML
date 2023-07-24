@@ -2,4 +2,4 @@ import streamlit as st
 
 # st.write ("Help")
 
-st.help (st.dataframe)
+st.help (st.cache_resource)
