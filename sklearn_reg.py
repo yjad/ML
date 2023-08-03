@@ -76,10 +76,10 @@ def reg_decision_tree_max_leaf(X_train, X_test, y_train, y_test):
     return final_model
 
 
-REG_MODELS= {'Reg-Decision Tree one level': reg_decision_tree_1, 
-             'Reg-Decision Tree multi level optimized': reg_decision_tree_max_leaf, 
-             'Reg-Random Forest': use_forest_regression, 
-             'Reg-Linear Model': use_linear_model
+REG_MODELS= {'Decision Tree one level': reg_decision_tree_1, 
+             'Decision Tree multi level optimized': reg_decision_tree_max_leaf, 
+             'Random Forest': use_forest_regression, 
+             'Linear Model': use_linear_model
 }
 
 

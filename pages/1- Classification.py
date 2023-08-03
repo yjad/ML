@@ -11,86 +11,47 @@ import load_data_set as lds
 import utils
 
 
-# @st.cache_data
-# def load_data_set_wine():
-#     # dataset_path = r"C:\Yahia\Home\Yahia-Dev\Python\ML\data\wine-quality-white-and-red.zip"
-#     # st.write(dataset_path)
-    
-#     # st.write(ds.columns)
-#     # return X_train, X_test, y_train, y_test,ds
-#     return lds.load_data_set_wine()
-
-
-def plot_all():
-    # all_reg = pd.DataFrame()
-    # _, X_test, _, _ = cls.load_data_set_wine()
-
-    # # for reg_model_id, reg_fn in enumerate(cfcn_method):
-    # for reg_model_name in cls.CFCN_MODELS.keys():
-
-    #     # print (20*'*', cfcn_method[reg_model_id],20*'*' )
-    #     cfcn_model = cls.load_model_from_file(reg_model_name)
-    #     # pred = cfcn_model(X_train, X_test, y_train, y_test)
-    #     pred = cls.use_model(cfcn_model, X_test)
-    #     if type(pred) == NoneType: 
-    #         print ('Model is not suitable for data')
-    #         continue   # model is not suitable
-    #     x = pd.DataFrame(pred)
-    #     x['predicted'] = pred
-    #     x['Method'] = reg_model_name
-    #     all_reg = pd.concat([all_reg, x])
-    #     # print_model_performance(None, val_y, pred, reg_model_id)
-
-    # all_reg.to_csv(r'.\\out\\all_reg.csv')
-    # g = sns.FacetGrid(data=all_reg, col= 'Method', col_wrap=2)
-    # fig = g.map(sns.regplot, all_reg.columns[0], 'predicted',  marker = '+')
-    fig = cls.plot_all()
-    st.pyplot(fig)
-    # st.dataframe(X_test)
     
 
-# def load_dataset():
-#     st.write("Loadng the dataset ...")
-#     X_train, X_test, y_train, y_test, ds = load_data_set()
-#     st.write("Loading done ...")
-
-# out = ""
-
-# st.write(tab1, tab2)
-# with tab1:
-#     st.header("Build Classification Model")
-   
-
-def use_model():
-    st.header("Use Model ...")
+def use_model(ds_name, ds_load_fn, models_dict):
+    st.header("Use Model: " + st.session_state.cls_model_name)
     
-    reg_model_name = st.selectbox("Select Model:", cls.CFCN_MODELS.keys())
-    X_train, X_test, y_train, y_test,ds = load_data_set()
+    # reg_model_name = st.selectbox("Select Model:", cls.CFCN_MODELS.keys())
+    X_train, X_test, y_train, y_test,ds = ds_load_fn()
 
-    index = st.number_input("Select index from test set:",0,X_test.shape[0]-1)
-    # index = 12
-    test_row = X_test[index:index+1,:]
-    st.write(test_row)
-    ds_row = ds.iloc[index,:]
-    st.write(ds_row)
+    idx = st.slider("Select index from test set:",min_value=0,max_value=X_test.shape[0]-1)
+    test_row = X_test[idx].reshape(1,-1)
+
+    # ds_row = ds.iloc[index,:]
+    # st.write(ds_row)
     
-    qlty= 'Bad' if ds_row['quality'] < 6.5 else 'Good'
-    st.write("Data Set Quality: ", qlty)
+    # qlty= 'Bad' if ds_row['quality'] < 6.5 else 'Good'
+    # st.write("Data Set Quality: ", qlty)
   
     
-
-    reg_model = load_model_from_file(reg_model_name)
-    pred = cls.use_model(reg_model, test_row)
-    # pred = cls.use_model(model_name, X_test[:1,:])
+    if 'cls_model_name' not in st.session_state:
+        st.warning("No model to use ...")
+    else:
+        cls_model = utils.load_model_from_file(st.session_state.cls_model_name, ds_name, 'cls')
+    pred = utils.use_cls_model(cls_model, test_row)
     
-    # st.write("Actual Value   : ", y_test[index:index+1])
-    pred_qlty= 'Bad' if pred[0] < 6.5 else 'Good'
+    # # st.write("Actual Value   : ", y_test[index:index+1])
+    # pred_qlty= 'Bad' if pred[0] < 6.5 else 'Good'
    
-    st.write("Predicted Value: ", pred_qlty)
+    # st.write("Predicted Value: ", pred_qlty)
 
-    if qlty != pred_qlty:
-         st.error ("Quality Mismatch ....")
-
+    # if qlty != pred_qlty:
+    #      st.error ("Quality Mismatch ....")
+    # st.write(y_test.iloc[0])
+    st.write("Test sample: ", test_row)
+    test_qulity= 'Bad' if y_test.iloc[idx] == 0 else 'Good'
+    pred_qulity= 'Bad' if pred[0] == 0 else 'Good'
+    st.write(f"Test Quality: {test_qulity}")
+    st.write(f"Predicted Quality: {pred_qulity}")
+    if test_qulity == pred_qulity:
+        st.info("Quality Matches ...")
+    else:
+        st.warning("Quality Mismatch ...")
 
 def build_models(load_ds_fn):
     st.header("Build Model ...")
@@ -139,15 +100,27 @@ if datasets[selected_ds]:
         case '...':
             pass
         case "Save Models": 
-            X_train, X_test, y_train, y_test = datasets[selected_ds]()
-            cls.save_models(X_train, X_test, y_train, y_test, model_dict= cls.CFCN_MODELS, dataset_name= selected_ds)
+            X_train, X_test, y_train, y_test, _ = datasets[selected_ds]()
+            utils.save_models(X_train, X_test, y_train, y_test, model_dict= cls.CLS_MODELS, 
+                              dataset_name= selected_ds,
+                              prefix='cls')
             st.info('Models generated and saved to files ...')
         
         case "Plot Models":
-            fig = utils.plot_all(selected_ds, datasets[selected_ds], cls.CFCN_MODELS)
+            fig, metrics = utils.plot_all(selected_ds, datasets[selected_ds], cls.CLS_MODELS, 'cls')
+            if 'cls_model_name' not in st.session_state:
+                st.session_state.cls_model_name = ''
+            st.session_state.cls_model_name= metrics.iloc[0,0]   # model name of the first 
+
+            st.dataframe(metrics, hide_index=True)
             st.pyplot(fig)
-        case others:
-            options[opt]()
+            # case others:
+            #     options[opt]()
+        case "Use Model":
+            if 'cls_model_name' not in st.session_state:
+                st.warning("No Model to use, select option 'Plot Models first'")
+            else:
+                use_model(selected_ds, datasets[selected_ds], cls.CLS_MODELS)
 
 
 
