@@ -59,14 +59,16 @@ datasets = {"...": None,
 selected_ds = st.sidebar.selectbox("Datasets: ", datasets.keys())
 if datasets[selected_ds]:
     options = {"...": None, 
+            "Display Sample Data": None, 
             "Save Models": None, 
             "Plot Models": None, 
             "Use Model": None}
 
     opt = st.sidebar.selectbox("Options", options.keys())
     match opt:
-        case '...':
-            pass
+        case 'Display Sample Data':
+            st.dataframe(datasets[selected_ds]()[0].head())
+            
         case "Save Models": 
             try:
                 X_train, X_test, y_train, y_test, _ = datasets[selected_ds]()
