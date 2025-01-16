@@ -11,8 +11,6 @@ import load_data_set as lds
 import utils
 
 
-    
-
 def use_model(ds_name, ds_load_fn, models_dict):
     st.header("Use Model: " + st.session_state.cls_model_name)
     
@@ -97,8 +95,7 @@ if datasets[selected_ds]:
 
     opt = st.sidebar.selectbox("Options", options.keys())
     match opt:
-        case '...':
-            pass
+
         case "Save Models": 
             X_train, X_test, y_train, y_test, _ = datasets[selected_ds]()
             utils.save_models(X_train, X_test, y_train, y_test, model_dict= cls.CLS_MODELS, 
